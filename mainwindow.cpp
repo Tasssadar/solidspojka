@@ -157,7 +157,7 @@ float MainWindow::calcDiameter(quint32 norm)
 float MainWindow::calcDepth(float diameter)
 {
     quint32 size = sizeof(peroTables)/sizeof(peroLine);
-    void cleanBtn();
+
     for(quint32 i = 0; i < size; ++i)
     {
         if(diameter >= peroTables[i].from && diameter < peroTables[i].to)
@@ -174,9 +174,36 @@ float MainWindow::calcDepth(float diameter)
 float MainWindow::calcLen(float mk, float t1, float d)
 {
     static const float Pd = 45.f; // MPa
+    static const quint16 tableVals[] = {
+        9, 10, 12, 14, 16, 18, 20, 22, 25, 28, 32, 36, 40,
+        45, 50, 56, 63, 70, 80, 90, 100, 110, 125, 140, 160,
+        180, 200, 220, 250, 280, 315, 355, 400
+    };
+    static const quint8 valsCnt = sizeof(tableVals)/sizeof(quint16);
 
     float l = (mk/(d/2.f))/(Pd*t1);
+
     append("Delka pera l = " + QString::number(l, 'f') + " mm");
+
+    if(l > tableVals[valsCnt-1])
+        throw QString("Delka pera je vetsi nez 400 - mimo tabulkovou radu");
+
+    for(quint8 i = 0; i < valsCnt; ++i)
+    {
+        if(tableVals[i] >= l)
+        {
+            QString ret = QString("Delka pera podle tabulkove rady: %1 mm (").arg(tableVals[i]);
+            if(i != 0)
+                ret += "predchozi: " + QString::number(tableVals[i-1]) + " mm; ";
+            if(i+1 != valsCnt)
+                ret += "nasledujici: " + QString::number(tableVals[i+1]) + " mm";
+            append(ret + ")");
+            return tableVals[i];
+        }
+    }
+
+    throw QString("Nebyla nalezena hodnota delky pera v tabulkove rade!");
+
     return l;
 }
 
