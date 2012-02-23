@@ -81,7 +81,11 @@ float MainWindow::calcMk(quint32 power, quint32 rounds)
 
 quint32 MainWindow::calcD(float mk)
 {
-    static const quint8 Tdk = 40; // Mpa
+    bool ok = true;
+    float Tdk = ui->tdkEdit->text().toFloat(&ok); // Mpa
+
+    if(!ok)
+        throw QString("Tdk bylo zadano ve spatnem formatu!");
 
     // z tabulek
     static const quint8 hint[] = { 6, 7, 8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 25, 28, 32, 35 };
@@ -105,7 +109,13 @@ quint32 MainWindow::calcD(float mk)
 
 quint32 MainWindow::calcScrews(quint32 d)
 {
-    quint32 res = d*3;
+    bool ok = true;
+    float coef = ui->circleEdit->text().toFloat(&ok);
+
+    if(!ok)
+        throw QString("Koeficient pro roztecnou kruznici byl zadan ve spatnem formatu!");
+
+    quint32 res = d*coef;
     append("Prumer roztecne kruznice sroubu: " + QString::number(res) + " mm");
     return res;
 }
@@ -119,8 +129,15 @@ quint32 MainWindow::calcFriction(float mk, quint32 D)
 
 quint32 MainWindow::calcNorm(quint32 friction)
 {
-    static const float coef = 0.15f;
-    static const quint8 screwCnt = 4;
+    bool ok[] = { true, true };
+    float coef = ui->frictionEdit->text().toFloat(&ok[0]);
+    quint8 screwCnt = ui->screwBox->text().toInt(&ok[1]);
+
+    if(!ok[0])
+        throw QString("Koeficient treni byl zadan ve spatnem formatu!");
+
+    if(!ok[1])
+        throw QString("Pocet sroubu byl zadan ve spatnem formatu!");
 
     quint32 norm = round(float(friction)/(coef*screwCnt));
     append("Normalova sila: " + QString::number(norm) + " N");
@@ -129,7 +146,12 @@ quint32 MainWindow::calcNorm(quint32 friction)
 
 float MainWindow::calcDiameter(quint32 norm)
 {
-    static const quint8 Sdt = 80; // MPa
+    bool ok = true;
+    float Sdt = ui->sdtEdit->text().toFloat(&ok); // MPa
+
+    if(!ok)
+        throw QString("σdt bylo zadano ve spatnem formatu!");
+
     quint8 tablesCnt = sizeof(screws)/(2*sizeof(float));
 
 
@@ -173,7 +195,12 @@ float MainWindow::calcDepth(float diameter)
 
 float MainWindow::calcLen(float mk, float t1, float d)
 {
-    static const float Pd = 45.f; // MPa
+    bool ok = true;
+    float Pd = ui->pdEdit->text().toFloat(&ok); // MPa
+
+    if(!ok)
+        throw QString("Tlak Pd byl zadan ve spatnem formatu!");
+
     static const quint16 tableVals[] = {
         9, 10, 12, 14, 16, 18, 20, 22, 25, 28, 32, 36, 40,
         45, 50, 56, 63, 70, 80, 90, 100, 110, 125, 140, 160,
