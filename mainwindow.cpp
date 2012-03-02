@@ -56,7 +56,7 @@ void MainWindow::calcBtn()
         quint32 friction    = calcFriction(mk, screwsD);
         quint32 norm        = calcNorm(friction);
         float diameter      = calcDiameter(norm);
-        float peroDepth     = calcDepth(diameter);
+        float peroDepth     = calcDepth(d);
         /*float peroLen   =*/ calcLen(mk, peroDepth, d);
 
     }
